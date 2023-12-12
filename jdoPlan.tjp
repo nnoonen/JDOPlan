@@ -1,0 +1,251 @@
+/*
+ * This file contains a project skeleton. It is part of the
+ * TaskJuggler project management tool. You can use this as a basis to
+ * start your own project file.
+ */
+project your_project_id "JDO 2024 Plan"  2024-01-01-0:00--0500 +30m {
+  # Set the default time zone for the project. If not specified, UTC
+  # is used.
+  timezone "America/Chicago"
+  # Hide the clock time. Only show the date.
+  timeformat "%Y-%m-%d"
+  # Use US format for numbers
+  numberformat "-" "" "," "." 1
+  # Use US financial format for currency values. Don't show cents.
+  currencyformat "(" ")" "," "." 0
+  now 2024-01-01
+  # The currency for all money values is the Euro.
+  currency "USD"
+
+  # You can define multiple scenarios here if you need them.
+  #scenario plan "Plan" {
+  #  scenario actual "Actual"
+  #}
+
+  # You can define your own attributes for tasks and resources. This
+  # is handy to capture additional information about the project that
+  # is not directly impacting the project schedule, but which you like to
+  # keep in one place.
+  #extend task {
+  #  reference spec "Link to Wiki page"
+  #}
+  #extend resource {
+  #  text Phone "Phone"
+  #}
+}
+
+flags people, process, technology, review, plan, code, build, test, deploy, release, operate, monitor, training
+
+# If you have any text block that you need multiple times to describe
+# your project, you should define a macro for it. Macros can even have
+# variable segments that you can set upon calling the macro.
+#
+# macro Task [
+#   task "A ${1} task" {
+#   }
+# ]
+#
+# Can be called as
+# ${Task "big"}
+# to generate
+# task "A big task" {
+# }
+
+# Project Transformation
+
+task project "Organizational Transformation" {
+  task outside "Outside Notes" {
+    task prehires "Poland Prehires"{
+        duration 9m
+        depends !!slt.onboarding
+    }
+    task genaimvp "Gen AI MVP"{
+        start 2024-01-02
+        duration 9m
+    }
+    task genai "Gen AI GoLive"{
+        depends !genaimvp
+        duration 3m
+    }
+  }
+  task slt "SLT" {
+    task comms "Clear Comms Strategy" {
+        flags people
+        duration 3m
+        # depends
+        note "Define, communicate and differentiate Lean, DevOps, Product Led Growth and Agile Transformations"
+    }
+    task agileleadtraining "Agile Lead Training" {
+        flags process, training
+        duration 3m
+        # depends
+        note "Dependencies?"
+    }
+    task domainopsreviews "Domain Ops Reviews" {
+        flags process, review
+        duration 3m
+        # depends
+        note "Establish standards, attend and update Domain Level Ops reviews"
+    }
+    task techvision "Tech vision"{
+        flags process, technology, review
+        duration 3m
+        # depends
+        note "Expand and define better, add dependencies"
+    }
+    task onboarding "Onboarding impediments"{
+        flags process, review
+        duration 3m
+        # depends
+        note "Expand and define better, add dependencies"
+    }
+    task Q1 "SLT Q1"{
+        milestone
+        depends !comms, !agileleadtraining,!domainopsreviews,!techvision,!onboarding
+    }
+    task servicearch "Service Arch Roadmap"{
+        flags technology, process
+        duration 3m
+        depends !Q1
+        note "Create a service architecture roadmap with Platform, Teams, and Cloud Eng.  Needs dependencies"
+    }
+    task archgov "Adopt Arch Governance"{
+        flags technology, process
+        duration 3m
+        depends !Q1
+        note "Create, rollout, plan, etc.  Needs upstream JDO dependencies"
+    }
+    task agilecoach "Agile Coach Per Domain"{
+        flags people
+        duration 3m
+        depends !Q1
+        note "Create, rollout, plan, etc.  Needs upstream JDO dependencies"
+    }
+    task pipelinestandards "ADKAR Pipeline Standards"{
+        flags process, technology, review
+        duration 3m
+        depends !Q1
+        note "Create, rollout, plan, etc.  Needs dependencies and more definition"
+    }
+    task Q2 "SLT Q2"{
+        depends !Q1, !servicearch, !archgov, !agilecoach, !pipelinestandards
+    }
+    task gamedays "Org Game Days"{
+        flags process
+        duration 3m
+        depends !Q2
+        note "Scale out and systematize organizational game days"
+    }
+    task leangov "Lean Governance"{
+        flags process
+        duration 3m
+        depends !Q4
+        note "Scale out and systematize Lean Governance"
+    }
+    task Q3 "Q3"{
+        depends !Q2, !leangov, !gamedays
+    }
+    task datadecisions "Data Driven Decisions"{
+        flags process
+        duration 3m
+        depends !Q3
+        note "Shift to data drive decisions"
+    }
+    task Q4 "Q4"{
+        flags process
+        duration 3m
+        depends !Q3, !datadecisions
+    }
+    task adoptquarterlyplanning "Adopt Quarterly Planning"{
+        flags process
+        duration 3m
+        depends !Q4
+        note "Shift to quarterly releases"
+    }
+    task Q5 "Q5"{
+        flags process
+        duration 3m
+        depends !Q4, !adoptquarterlyplanning
+    }
+  }
+  task jdo "Journey to DevOps" {
+    task jdoconnect "JDO Connect Improvements"{
+        flags technology
+        duration 3m
+        notes "Improve JDO Connect based on feedback"
+    }
+    task leadtraining "Agile Leadership Training"{
+        flags process, training
+        duration 3m
+    }
+  }
+  task enablement "Enablement"{
+  }
+  task platform "Platform"{
+  }
+  task sprinters "Sprint Teams"{
+  }
+}
+
+# Report Generation
+
+navigator navbar {
+  hidereport 0
+}
+
+macro TaskTip [
+  tooltip istask() -8<-
+    '''Notes:''' <-query attribute='note'->
+    '''Start: ''' <-query attribute='start'->
+    '''End: ''' <-query attribute='end'->
+    '''Precursors: ''' <-query attribute='precursors'->
+    '''Followers: ''' <-query attribute='followers'->
+    ->8-
+]
+
+textreport frame "" {
+  header -8<-
+    == TaskJuggler Project Template ==
+    <[navigator id="navbar"]>
+  ->8-
+  footer "----"
+  textreport index "Overview" {
+    formats html
+    center '<[report id="overview"]>'
+  }
+  }
+
+# A traditional Gantt chart with a project overview.
+taskreport overview "" {
+  header -8<-
+    === Project Overview ===
+
+    === 2024 Plan ===
+  ->8-
+  columns bsi { title 'WBS' },
+          name, start, end, chart { ${TaskTip} width 1100 }
+  # For this report we like to have the abbreviated weekday in front
+  # of the date. %a is the tag for this.
+  timeformat "%Y-%m"
+  loadunit days
+  hideresource 1
+  caption 'All effort values are at a quarter level.'
+
+  footer -8<-
+    === Status ===
+
+    Planning
+
+    === Risks ===
+    TBD
+
+  ->8-
+}
+
+# Macro to set the background color of a cell according to the alert
+# level of the task.
+macro AlertColor [
+  cellcolor plan.alert = 0 "#90FF90" # green
+  cellcolor plan.alert = 1 "#FFFF90" # yellow
+  cellcolor plan.alert = 2 "#FF9090" # red
+]
